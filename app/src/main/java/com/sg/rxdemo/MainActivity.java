@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private DisposableObserver<String[]> arrayObserver;
     private Observable<String[]> myStringObservable;
     private Observable<String> singleObservable;
+    private Observable<Integer> integerObservable;
     private CompositeDisposable compositeDisposable=new CompositeDisposable();
 
     private TextView textView;
@@ -43,8 +44,9 @@ public class MainActivity extends AppCompatActivity {
         one by one.  */
 
         myStringObservable=Observable.just(greetingsarray); //all at once
-       singleObservable=Observable.just("Hello 1", "Hello 2"," Hello 3"); //one by one array of observers
-
+       singleObservable=Observable.just("Hello 1", "Hello 2"," Hello 3"); //one by one array of observers. Same as fromArray in case of array of data stream as input.
+        myObservable=Observable.fromArray(greetingsarray);
+        integerObservable=Observable.range(1,20); //emit values ranging from 1 to 20
 
 
 
