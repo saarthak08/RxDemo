@@ -1,8 +1,11 @@
 package com.sg.rxdemo;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,11 +16,8 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private DisposableObserver<Student> myObserverStudent;
     private CompositeDisposable compositeDisposable=new CompositeDisposable();
     private TextView textView;
+    private FloatingActionButton floatingActionButton;
    //private Disposable disposable;
 
 
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView=findViewById(R.id.tv);
+        floatingActionButton=findViewById(R.id.floatingActionButton);
         /*
         Just operator converts data stream into observable
         .If an array is taken then just operator will convert whole array into observalbe unlike fromArray
@@ -200,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNext(String s) {
                 Log.i(TAG,"onNext invoked");
-                Toast.makeText(MainActivity.this,s,Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this,s,Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -246,7 +248,12 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.add(myStringObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(arrayObserver));
 
 
-
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,SubjectActivity.class));
+            }
+        });
     }
 
 
