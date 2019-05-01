@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RxDemo</string>
+    <string name="go_to_binding_activity">Go to Binding Activity</string>
 </resources>

@@ -1,8 +1,14 @@
 package com.sg.rxdemo;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -16,11 +22,13 @@ import io.reactivex.subjects.ReplaySubject;
 
 public class SubjectActivity extends AppCompatActivity {
     private final static String TAG = "myApp";
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_subject);
+        button=findViewById(R.id.button);
        //asyncSubjectDemo1();
        //asyncSubjectDemo2();
        //behaviorSubjectDemo1();
@@ -29,6 +37,12 @@ public class SubjectActivity extends AppCompatActivity {
         //publishSubjectDemo2();
         //replaySubjectDemo1();
         replaySubjectDemo2();
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SubjectActivity.this,RxBinding.class));
+            }
+        });
     }
 
 
