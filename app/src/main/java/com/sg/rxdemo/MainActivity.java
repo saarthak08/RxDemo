@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -18,13 +19,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG="MyApp";
     private String greetings="Hello From RxJava";
-    private String[] greetingsarray={"Hello A, Hello B, Hello C"};
+    private String[] greetingsarray={"Hello Lallu","Hello A", "Hello B", "Hello C","Hello A","Hello B","I am mad"};
     private Observable<String> myObservable;
     private DisposableObserver<String> myObserver;
     private DisposableObserver<String> myObserver2;
@@ -44,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView=findViewById(R.id.tv);
-        myObservable=Observable.just(greetings);  /*
+        //myObservable=Observable.just(greetings);
+        /*
 
         Just operator converts data stream into observable
         .If an array is taken then just operator will convert whole array into observalbe unlike fromArray
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         myObservable=Observable.fromArray(greetingsarray);
         integerObservable=Observable.range(1,20); //emit values ranging from 1 to 20
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
         myObservableStudent=Observable.create(new ObservableOnSubscribe<Student>() {
             @Override
             public void subscribe(ObservableEmitter<Student> emitter) throws Exception {
@@ -78,19 +81,31 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+/////////////////////////////////////////////////////////////////////////////////////////
+
 
         compositeDisposable.add(
                 myObservableStudent
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        /*.map(new Function<Student, Student>() {
+                        .map(new Function<Student, Student>() {
                             @Override
                             public Student apply(Student student) throws Exception {
                                 student.setEmail(student.getEmail().toUpperCase());
                                 return student;
                             }
-                        })*/
+                        })
                         .flatMap(new Function<Student, ObservableSource<Student>>() {
+                            @Override
+                            public ObservableSource<Student> apply(Student student) throws Exception {
+                                Student student1=new Student();
+                                student1.setEmail(student.getEmail());
+                                Student student2=new Student();
+                                student2.setEmail("New Member: "+student.getEmail());
+                                return Observable.just(student,student1,student2);
+                            }
+                        })
+                        .concatMap(new Function<Student, ObservableSource<Student>>() {   //Preserves the order of the data emitted but waits for the observable to finish its task
                             @Override
                             public ObservableSource<Student> apply(Student student) throws Exception {
                                 Student student1=new Student();
@@ -102,8 +117,52 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .subscribeWith(getObserver())
         );
+/////////////////////////////////////////////////////////////////////////////////////////
 
 
+        compositeDisposable.add(integerObservable.buffer(4).filter(new Predicate<List<Integer>>() {
+            @Override
+            public boolean test(List<Integer> integers) throws Exception {
+                boolean r=false;
+                for(Integer i:integers)
+                {
+                    if(i>15)
+                    {
+                        r=true;
+                    }
+                    else
+                        r=false;
+                }
+                return r;
+            }
+        }).subscribeWith(new DisposableObserver<List<Integer>>() {
+            @Override
+            public void onNext(List<Integer> integers) {
+                Log.i(TAG,"onNext invoked");
+                for(Integer i:integers)
+                {
+                    Log.i(TAG,""+i);
+                }
+
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.i(TAG,"onError invoked");
+
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.i(TAG,"onComplete invoked");
+
+
+            }
+        }));
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -137,11 +196,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };*/
+/////////////////////////////////////////////////////////////////////////////////////////
 
        myObserver=new DisposableObserver<String>() {
            @Override
            public void onNext(String s) {
                Log.i(TAG,"onNext invoked");
+               Log.i(TAG,"Yo "+s);
                textView.setText(s);
            }
 
@@ -159,8 +220,8 @@ public class MainActivity extends AppCompatActivity {
        //compositeDisposable.add(myObserver);
         //myObservable.subscribe(myObserver);
         compositeDisposable.add(myObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-        .subscribeWith(myObserver));
-
+                .distinct().skip(1).skipLast(1).subscribeWith(myObserver));
+////////////////////////////////////////////////////////////////////////////////////////////////////
         myObserver2=new DisposableObserver<String>() {
             @Override
             public void onNext(String s) {
@@ -182,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.add(singleObservable.subscribeWith(myObserver2));
       //  compositeDisposable.add(myObserver2);
        // myObservable.subscribe(myObserver2);
+/////////////////////////////////////////////////////////////////////////////////////////
 
         arrayObserver=new DisposableObserver<String[]>() {
             @Override
