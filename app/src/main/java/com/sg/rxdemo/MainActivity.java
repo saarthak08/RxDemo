@@ -18,9 +18,13 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     private final static String TAG="MyApp";
     private String greetings="Hello From RxJava";
+    private String[] greetingsarray={"Hello A, Hello B, Hello C"};
     private Observable<String> myObservable;
     private DisposableObserver<String> myObserver;
     private DisposableObserver<String> myObserver2;
+    private DisposableObserver<String[]> arrayObserver;
+    private Observable<String[]> myStringObservable;
+    private Observable<String> singleObservable;
     private CompositeDisposable compositeDisposable=new CompositeDisposable();
 
     private TextView textView;
@@ -29,8 +33,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myObservable=Observable.just(greetings);
         textView=findViewById(R.id.tv);
+        myObservable=Observable.just(greetings);  /*
+
+        Just operator converts data stream into observable
+        .If an array is taken then just operator will convert whole array into observalbe unlike fromArray
+        operator.
+        If values are passed to just separated using commas then it converts each value to observable
+        one by one.  */
+
+        myStringObservable=Observable.just(greetingsarray); //all at once
+       singleObservable=Observable.just("Hello 1", "Hello 2"," Hello 3"); //one by one array of observers
+
+
+
+
+
+
+
        // myObservable.subscribeOn(Schedulers.io());
         //myObservable.observeOn(AndroidSchedulers.mainThread());
        /* myObserver=new Observer<String>() {
@@ -103,9 +123,30 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG,"onComplete invoked");
             }
         };
-        compositeDisposable.add(myObservable.subscribeWith(myObserver2));
+        compositeDisposable.add(singleObservable.subscribeWith(myObserver2));
       //  compositeDisposable.add(myObserver2);
        // myObservable.subscribe(myObserver2);
+
+        arrayObserver=new DisposableObserver<String[]>() {
+            @Override
+            public void onNext(String[] strings) {
+                Log.i(TAG,"onNext invoked");
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.i(TAG,"onError invoked");
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.i(TAG,"onComplete invoked");
+
+            }
+        };
+        compositeDisposable.add(myStringObservable.subscribeWith(arrayObserver));
     }
 
     @Override
